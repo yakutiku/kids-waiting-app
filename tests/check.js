@@ -3,15 +3,15 @@ const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path');
 const BASE = 'http://localhost:8090/';
 const OUT = '/tmp/claude-0/check/';
-const GENRES = ['korokoro', 'hataraku', 'shinkansen', 'senro', 'memory'];
-const LEVELS = { korokoro: ['1', '2', '3', 'free'], hataraku: ['1', '2', '3'], shinkansen: ['1', '2', '3'], senro: ['1', '2', '3'], memory: ['1', '2', '3'] };
+const GENRES = ['korokoro', 'hataraku', 'shinkansen', 'senro', 'memory', 'katachi', 'nurie', 'moji'];
+const LEVELS = { korokoro: ['1', '2', '3', 'free'], hataraku: ['1', '2', '3'], shinkansen: ['1', '2', '3'], senro: ['1', '2', '3'], memory: ['1', '2', '3'], katachi: ['1', '2', '3'], nurie: ['nurie', 'oekaki', 'nazori'], moji: ['1', '2', '3'] };
 const VPS = { m: { width: 874, height: 402, isMobile: true, hasTouch: true }, d: { width: 1280, height: 800 } };
 const results = {}; const notes = [];
 const R = (k, ok, msg) => { (results[k] ||= []).push({ ok, msg }); if (!ok) console.log('NG', k, msg); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const seenInit = () => {
-  for (const g of ['korokoro', 'hataraku', 'shinkansen', 'senro', 'memory'])
-    for (const k of ['intro', 'intro1', 'intro2', 'intro3']) localStorage.setItem('kwa.g.' + g + '.seen.' + k, 'true');
+  for (const g of ['korokoro', 'hataraku', 'shinkansen', 'senro', 'memory', 'katachi', 'nurie', 'moji'])
+    for (const k of ['intro', 'intro1', 'intro2', 'intro3', 'nurie', 'oekaki', 'nazori']) localStorage.setItem('kwa.g.' + g + '.seen.' + k, 'true');
 };
 const externals = [];
 async function newCtx(browser, vp, opts = {}) {
@@ -106,7 +106,7 @@ async function t2(browser) {
   try {
     await page.reload(); await page.waitForSelector('.genre-card', { timeout: 8000 });
     R('2', true, 'オフライン再読み込みでホーム表示');
-    for (const g of GENRES) { await openGame(page, g, '1'); await sleep(600); await page.click('.bar .home'); await page.waitForSelector('.genre-card'); }
+    for (const g of GENRES) { await openGame(page, g, LEVELS[g][0]); await sleep(600); await page.click('.bar .home'); await page.waitForSelector('.genre-card'); }
     R('2', true, 'オフラインで全ジャンル ★1 を開けた');
   } catch (e) { R('2', false, 'オフライン失敗 ' + e.message.split('\n')[0]); }
   R('2', errs.length === 0, 'offline errors ' + errs.slice(0, 3).join('|'));
@@ -126,7 +126,7 @@ async function t5(browser) {
   let v = await fps(); R('5', v >= 30, `ころころ★1 実行中 ${v.toFixed(1)}fps`);
   await page.click('.bar .home'); await page.waitForSelector('.genre-card');
   for (const g of ['senro', 'shinkansen']) {
-    await openGame(page, g, '1'); await sleep(500);
+    await openGame(page, g, LEVELS[g][0]); await sleep(500);
     // 操作しながら測る(画面中央をゆっくりなぞる)
     const p = await L(page, 500, 300); await page.mouse.move(p.x, p.y); await page.mouse.down(); await page.mouse.move(p.x + 80, p.y + 20, { steps: 10 }); await page.mouse.up();
     v = await fps(); R('5', v >= 30, `${g}★1 ${v.toFixed(1)}fps`);
@@ -195,7 +195,7 @@ async function t9(browser) {
     await page.screenshot({ path: `${OUT}${sn}-home.png` });
     for (const g of GENRES) {
       await toLevels(page, g); await sleep(300); await page.screenshot({ path: `${OUT}${sn}-${g}-levels.png` });
-      await page.click('[data-level="1"]'); await page.waitForSelector('canvas.scene'); await sleep(1800);
+      await page.click(`[data-level="${LEVELS[g][0]}"]`); await page.waitForSelector('canvas.scene'); await sleep(1800);
       await page.screenshot({ path: `${OUT}${sn}-${g}-1.png` });
       await page.click('.bar .home'); await page.waitForSelector('.genre-card'); // 履歴で ホームへ
     }
