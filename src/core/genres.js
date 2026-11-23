@@ -6,3 +6,10 @@ import senro from '../genres/senro/index.js';
 import memory from '../genres/memory/index.js';
 
 export const GENRES = [korokoro, hataraku, shinkansen, senro, memory];
+
+// ホームのカード用の みじかい なまえ(むずかしさ選択の画面では もとの なまえ)
+const SHORT = {
+  shinkansen: { ja: 'しんかんせん', en: 'Bullet train' },
+  memory: { ja: 'しんけい すいじゃく', en: 'Memory cards' },
+};
+for (const g of GENRES) g.short = SHORT[g.id] || g.title;

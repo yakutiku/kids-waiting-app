@@ -172,3 +172,48 @@ canvas { display: block; }
 /* 日本語は わかちがきの スペースで 折り返す(語の途中で切らない) */
 .genre-card .lbl, .level-btn .lbl, .lbl.title { word-break: keep-all; overflow-wrap: anywhere; }
 .genre-card .lbl { max-width: 100%; }
+
+/* ---------- ホームを どの画面でも 1 画面に収める(iPhone 対応) ---------- */
+html, body { position: fixed; inset: 0; width: 100%; height: 100%; }
+.home { padding-bottom: calc(var(--sab) + 8px); }
+.home .genre-grid {
+  flex: 1 1 auto; min-height: 0; width: 100%; max-width: 1200px;
+  overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y;
+  align-content: center; grid-auto-rows: auto; gap: 12px;
+}
+.home .genre-card { min-height: 0; padding: 10px 6px; gap: 4px; font-size: 24px; }
+.home .genre-card .genre-icon { width: var(--gi) !important; height: var(--gi) !important; }
+@media (orientation: landscape) {
+  .home .genre-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .home { --gi: min(140px, 30vh, 14vw); }
+}
+@media (orientation: portrait) {
+  .home .genre-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home { --gi: min(140px, 15vh, 30vw); }
+  .home .genre-card:last-child { grid-column: 1 / span 2; }
+}
+/* 大きい画面(タブレット)は文字も大きく */
+@media (min-width: 700px) and (min-height: 700px) { .home .genre-card { font-size: 30px; padding: 16px 8px; } }
+/* 小さい画面(iPhone)では カードの英語を省いて 収める(むずかしさ選択の画面には出る) */
+@media (max-height: 500px), (max-width: 500px) { .home .genre-card .lbl .sub { display: none; } }
+@media (orientation: landscape) and (max-height: 500px) {
+  .home .genre-grid { gap: 8px; grid-template-columns: 1fr 1fr 1.2fr 1fr 1fr; }
+  .home .genre-card { padding: 8px 2px; letter-spacing: -0.06em; }
+}
+/* むずかしさ選択も 1 画面に収める */
+.levels-body { overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding: 4px 0; }
+.levels-head canvas { width: min(110px, 18vh) !important; height: min(110px, 18vh) !important; }
+@media (orientation: landscape) and (max-height: 500px) {
+  .levels-body { gap: 10px; }
+  .level-row { flex-wrap: nowrap; gap: 10px; }
+  .level-btn { min-width: 0; flex: 1 1 0; max-width: 190px; min-height: 0; height: min(140px, 40vh); padding: 6px; }
+  .level-btn .lbl.small { font-size: 24px; }
+  .level-btn .lbl .sub { display: none; }
+}
+@media (orientation: portrait) and (max-width: 500px) {
+  .level-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 12px; }
+  .level-btn { min-width: 0; min-height: min(140px, 18vh); }
+  .level-btn .lbl.small { font-size: 24px; }
+  .level-btn .lbl .sub { display: none; }
+}
+@media (orientation: landscape) and (max-height: 500px) { .level-btn .stars canvas { width: min(46px, 5.5vw) !important; height: min(46px, 5.5vw) !important; } }

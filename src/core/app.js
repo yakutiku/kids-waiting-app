@@ -93,14 +93,14 @@ export function showHome(push = true) {
   const scr = $('div', 'screen home', root);
   const head = $('div', 'home-head', scr);
   head.append(label('なにで あそぶ？', 'What shall we play?', { className: 'title' }));
-  const grid = $('div', 'genre-grid', scr);
+  const grid = $('div', 'genre-grid scroll', scr);
   for (const g of GENRES) {
     const card = $('button', 'genre-card', grid);
     card.type = 'button';
     card.dataset.genre = g.id;
     const ic = iconCanvas(150, (c, s) => g.drawIcon(c, s), 'genre-' + g.id);
     ic.className = 'genre-icon';
-    card.append(ic, label(g.title.ja, g.title.en));
+    card.append(ic, label(g.short.ja, g.short.en));
     onTap(card, () => { speak(g.title.ja, g.title.en); showLevels(g); });
   }
   // 大人用設定(長押し 3 秒)
@@ -140,7 +140,7 @@ function showLevels(g) {
   pushScreen();
   const scr = $('div', 'screen levels with-bar', root);
   bar(scr, { onHome: () => goHome() });
-  const body = $('div', 'levels-body', scr);
+  const body = $('div', 'levels-body scroll', scr);
   const head = $('div', 'levels-head', body);
   const ic = iconCanvas(110, (c, s) => g.drawIcon(c, s), 'genre-' + g.id + '-110');
   head.append(ic, label(g.title.ja, g.title.en, { className: 'title' }));
@@ -298,6 +298,11 @@ export function boot() {
   document.addEventListener('touchmove', (e) => {
     if (!e.target.closest || !e.target.closest('.scroll')) e.preventDefault();
   }, { passive: false });
+  // 画面を回したあと、ずれたまま残らないように位置を戻す(iPhone 対策)
+  const fixScroll = () => { window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; };
+  window.addEventListener('orientationchange', () => { fixScroll(); setTimeout(fixScroll, 300); setTimeout(fixScroll, 800); });
+  window.addEventListener('resize', fixScroll);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fixScroll);
   try { history.replaceState({ s: 'home', d: 0 }, ''); } catch { }
   showHome();
 }
