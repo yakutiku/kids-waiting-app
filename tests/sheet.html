@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#FAF5EA"><canvas id="c" width="1200" height="800"></canvas>
+<script type="module">
+import { VEHICLES, drawVehicle, drawPerson, drawCrate } from '../src/crayon/vehicles.js';
+const c = document.getElementById('c').getContext('2d');
+Object.keys(VEHICLES).forEach((id, i) => { drawVehicle(c, id, 10 + (i % 5) * 235, 10 + Math.floor(i / 5) * 160, 220); c.font='16px sans-serif'; c.fillText(id, 20 + (i % 5) * 235, 160 + Math.floor(i / 5) * 160); });
+for (let i=0;i<8;i++) drawPerson(c, i, 20+i*70, 660, 100);
+drawCrate(c, 620, 690, 60);
+</script>
