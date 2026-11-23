@@ -175,7 +175,7 @@ function dominoPairs(w) {
 }
 
 // ---------- 機械(ダンプ・クレーン) ----------
-function updateMachine(w, m, dt) {
+export function updateMachine(w, m, dt) {
   if (m.type === 'dump') {
     if (m.state === 'idle') {
       for (const ball of w.balls) {
@@ -255,6 +255,20 @@ function updateMachine(w, m, dt) {
   }
 }
 
+export function checkGoals(w) {
+  for (const g of w.goals) {
+    if (g.reached) continue;
+    for (const ball of w.balls) {
+      if (!ball.active || ball.held) continue;
+      if (g.only && ball.kind !== g.only) continue;
+      if (ball.x > g.x - g.w / 2 && ball.x < g.x + g.w / 2 && ball.y > g.y - g.h && ball.y < g.y) {
+        g.reached = true;
+        w.events.push({ type: 'goal', x: g.x, y: g.y - g.h / 2, goal: g });
+      }
+    }
+  }
+}
+
 // ---------- 1 ステップ ----------
 function step(w, dt) {
   w.time += dt;
@@ -296,18 +310,7 @@ function step(w, dt) {
     if (ball.y > FIELD.y1 + 200 || ball.x < FIELD.x0 - 200 || ball.x > FIELD.x1 + 200) ball.active = false;
   }
   for (const m of w.machines) updateMachine(w, m, dt);
-  // ゴール
-  for (const g of w.goals) {
-    if (g.reached) continue;
-    for (const ball of w.balls) {
-      if (!ball.active || ball.held) continue;
-      if (g.only && ball.kind !== g.only) continue;
-      if (ball.x > g.x - g.w / 2 && ball.x < g.x + g.w / 2 && ball.y > g.y - g.h && ball.y < g.y) {
-        g.reached = true;
-        w.events.push({ type: 'goal', x: g.x, y: g.y - g.h / 2, goal: g });
-      }
-    }
-  }
+  checkGoals(w);
   // 止まったか
   const moving = w.balls.some((b) => b.active && !b.held && Math.hypot(b.vx, b.vy) > 8) ||
     w.machines.some((m) => m.state !== 'idle' && m.state !== 'rest') ||

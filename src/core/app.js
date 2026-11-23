@@ -36,6 +36,12 @@ const ICONS = {
     crayonPoly(c, pts, P.haiiro, { seed: 6, width: 2.5 });
     crayonCircle(c, 50, 50, 11, P.gayoshi, { seed: 7, width: 2 });
   },
+  phone: (c, s) => {
+    const k = s / 100; c.scale(k, k);
+    crayonRect(c, 18, 30, 64, 40, P.sorairo, { r: 8, seed: 21, width: 3 });
+    crayonLine(c, [[30, 18], [50, 8], [70, 18]], { width: 4, color: P.daidai, seed: 22 });
+    crayonPoly(c, [[64, 10], [76, 20], [62, 24]], P.daidai, { seed: 23, width: 2 });
+  },
   star: (c, s) => { const k = s / 100; c.scale(k, k); crayonPoly(c, starPts(50, 52, 44), P.kiiro, { seed: 8 }); },
 };
 
@@ -174,6 +180,9 @@ function startGame(g, lv) {
     onNext: () => { btns.next.classList.remove('glow'); inst && inst.next && inst.next(); },
   });
   const stage = $('div', 'stage', scr);
+  const hint = $('div', 'rotate-hint', scr);
+  hint.setAttribute('aria-label', 'よこむきに すると おおきく なるよ');
+  hint.append(iconCanvas(72, ICONS.phone, 'phone72'));
   const scenes = [];
   let celebrateTimer = null;
   const api = {

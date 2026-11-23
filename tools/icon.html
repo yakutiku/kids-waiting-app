@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#FAF5EA"><canvas id="c"></canvas>
+<script type="module">
+import { drawVehicle } from '../src/crayon/vehicles.js';
+import { crayonCircle, crayonRect, paperSprite } from '../src/crayon/crayon.js';
+import { P } from '../src/crayon/palette.js';
+window.draw = (s) => {
+  const c = document.getElementById('c'); c.width = s; c.height = s;
+  const x = c.getContext('2d');
+  x.drawImage(paperSprite(512, 512), 0, 0, s, s);
+  x.save(); x.scale(s / 512, s / 512);
+  crayonRect(x, 0, 380, 512, 132, P.kimidori, { seed: 3, outline: false });
+  crayonCircle(x, 400, 110, 50, P.kiiro, { seed: 4, width: 4 });
+  drawVehicle(x, 'shinkansen', 40, 180, 430);
+  x.restore();
+};
+window.draw(512);
+</script>

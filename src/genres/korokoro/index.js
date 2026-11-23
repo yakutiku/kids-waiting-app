@@ -7,6 +7,8 @@ import { hit } from '../../core/scene.js';
 import { createWorld, advance, FIELD } from './physics.js';
 import { buildPart, buildField, partHit, clampPart, drawPart, drawToolIcon, RAMP_ANGLES, RAMP_LEN, PART_NAMES } from './parts.js';
 import { PUZZLES } from './puzzles.js';
+import { loadMatter, buildMatterWorld, advanceMatter } from './physics-matter.js';
+import { settings } from '../../core/settings.js';
 
 const TOOLBOX_X = 856;
 const SLOT = { x: 864, w: 128, h: 112 };
@@ -29,7 +31,7 @@ function wallEnds(p) {
 export default {
   id: 'korokoro',
   title: { ja: 'ころころ そうち', en: 'Rolling machine' },
-  supportsRealPhysics: false, // Matter.js 版は後日(仕様書 5-1 案B)
+  supportsRealPhysics: true, // 保護者設定「リアルなうごき」で Matter.js 版を選べる(仕様書 5-1 案B)
   drawIcon(c, s) {
     const k = s / 150; c.scale(k, k);
     crayonPoly(c, [[10, 50], [90, 80], [90, 92], [10, 62]], P.chairo, { seed: 1 });
@@ -37,20 +39,36 @@ export default {
     [100, 116, 132].forEach((x, i) => crayonRect(c, x, 96 - (i === 2 ? 0 : 0), 9, 44, [P.kiiro, P.midori, P.ao][i], { seed: 3 + i, width: 2 }));
     crayonPoly(c, [[8, 138], [142, 138], [142, 144], [8, 144]], P.kimidori, { seed: 7, width: 2 });
   },
-  levels: [
-    { id: '1', stars: 1 }, { id: '2', stars: 2 }, { id: '3', stars: 3 },
-    {
-      id: 'free', ja: 'じゆうに つくる', en: 'Free build',
-      drawIcon(c, s) {
-        const k = s / 64; c.scale(k, k);
-        crayonPoly(c, starPts(32, 32, 26), P.daidai, { seed: 9, width: 2 });
+  get levels() {
+    const lv = [
+      { id: '1', stars: 1 }, { id: '2', stars: 2 }, { id: '3', stars: 3 },
+      {
+        id: 'free', ja: 'じゆうに つくる', en: 'Free build',
+        drawIcon(c, s) {
+          const k = s / 64; c.scale(k, k);
+          crayonPoly(c, starPts(32, 32, 26), P.daidai, { seed: 9, width: 2 });
+        },
       },
-    },
-  ],
+    ];
+    if (settings.get('realPhysics')) {
+      lv.push({
+        id: 'real', ja: 'リアルな うごき', en: 'Real physics',
+        drawIcon(c, s) {
+          const k = s / 64; c.scale(k, k);
+          crayonCircle(c, 32, 32, 22, P.ao, { seed: 10 });
+          crayonPoly(c, starPts(32, 32, 10), P.kiiro, { seed: 11, width: 1.5 });
+        },
+      });
+    }
+    return lv;
+  },
 
   start(api) {
     const scene = api.createScene({ width: 1000, height: 600 });
-    const free = api.level.id === 'free';
+    const real = api.level.id === 'real';
+    const free = api.level.id === 'free' || real;
+    let Matter = null;
+    if (real) loadMatter().then((M) => { Matter = M; }).catch(() => { });
     const puzzles = free ? null : PUZZLES[api.level.id] || PUZZLES[1];
     let pIdx = free ? 0 : api.load('idx' + api.level.id, 0) % puzzles.length;
 
@@ -128,10 +146,14 @@ export default {
       if (mode === 'run') return;
       mode = 'run'; runs++; settledGlow = 0;
       api.play('whoosh');
-      world = createWorld();
-      buildField(world);
       runParts = [...fixed, ...placed].map((p) => ({ ...clone(p), fixed: p.fixed }));
-      runParts.forEach((p) => buildPart(world, p));
+      if (real && Matter) {
+        world = buildMatterWorld(Matter, runParts);
+      } else {
+        world = createWorld();
+        buildField(world);
+        runParts.forEach((p) => buildPart(world, p));
+      }
     }
     function stopRun() {
       mode = 'edit'; world = null; runParts = null; goalAnim = null; settledGlow = 0;
@@ -320,7 +342,7 @@ export default {
       hitCooldown -= dt;
       drawSprite(ctx, bg, 0, 0, 1000, 600);
       if (mode === 'run' && world) {
-        onEvents(advance(world, dt));
+        onEvents(world.matter ? advanceMatter(world, dt) : advance(world, dt));
         if (world.restTime > 2 && !goalAnim) settledGlow = 1;
         for (const p of runParts) {
           if (p.type === 'ballS' || p.type === 'ballB') continue;

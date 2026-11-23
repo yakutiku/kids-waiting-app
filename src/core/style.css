@@ -164,3 +164,8 @@ canvas { display: block; }
   .lbl.title { font-size: 32px; }
   .home-head { padding: 4px 70px 8px; }
 }
+
+/* 縦向きのときだけ「よこにすると おおきくなるよ」の小さな絵 */
+.rotate-hint { display: none; position: absolute; right: calc(var(--sar) + 14px); bottom: calc(var(--sab) + 14px); opacity: 0.7; pointer-events: none; animation: tilt 3s ease-in-out infinite; }
+@media (orientation: portrait) { .game .rotate-hint { display: block; } }
+@keyframes tilt { 0%, 40% { transform: rotate(0deg); } 60%, 100% { transform: rotate(-90deg); } }
