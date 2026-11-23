@@ -178,13 +178,13 @@ export default {
       goalAnim = { t: 0, part: e.goal.part, bell: e.goal.bell };
       scene.sparkle(e.x, e.y, { count: 14 });
       api.play(e.goal.bell ? 'ding' : 'done');
-      scene.floatText(e.goal.bell ? 'チリーン' : 'ゴール！', e.goal.bell ? 'ding!' : 'goal!', e.x, e.y - 90, { size: 44 });
+      scene.floatText(e.goal.bell ? 'チリーン' : '{ゴール|ごーる}！', e.goal.bell ? 'ding!' : 'goal!', e.x, e.y - 90, { size: 44 });
       if (!solvedThis) {
         solvedThis = true;
         api.markSolved();
         if (!free) api.save('idx' + api.level.id, (pIdx + 1) % puzzles.length);
       }
-      setTimeout(() => { if (goalAnim) api.celebrate(free ? { ja: 'ゴール！', en: 'Goal!' } : { ja: 'できた！', en: 'You did it!' }); }, 600);
+      setTimeout(() => { if (goalAnim) api.celebrate(free ? { ja: '{ゴール|ごーる}！', en: 'Goal!' } : { ja: 'できた！', en: 'You did it!' }); }, 600);
     }
 
     // ---------- 指の操作 ----------

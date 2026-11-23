@@ -1,5 +1,5 @@
 // オフライン用(自動生成: node tools/build-sw.js)。外部への通信はしない。
-const VERSION = '2caa9fd3b2';
+const VERSION = '45e9d37663';
 const FILES = [
   "./",
   "index.html",

@@ -225,7 +225,7 @@ function startGame(g, lv) {
     inst = g.start(api) || {};
   } catch (err) {
     console.error(err);
-    stage.append(label('ごめんね、うまく ひらけなかったよ', 'Sorry, could not open'));
+    stage.append(label('ごめんね、もういちど ためしてね', 'Sorry. Please try again.'));
   }
   current = {
     dispose() {

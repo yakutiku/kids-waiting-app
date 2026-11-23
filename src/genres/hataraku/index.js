@@ -167,7 +167,7 @@ const JOBS = [
       const bump = bags.reduce((m, _, i) => { const f = seg(k, 0.08 + i * 0.26 + 0.2, 0.08 + i * 0.26 + 0.34); return Math.max(m, Math.sin(f * Math.PI)); }, 0);
       ctx.save(); ctx.translate(left + 100, GY); ctx.scale(1, 1 - bump * 0.025); ctx.translate(-(left + 100), -GY); dv(ctx, 'garbage', left, GY, w); ctx.restore();
     } },
-  { key: 'roller', veh: 'roller', ja: 'でこぼこの みちを ならしたい', en: 'Flatten the bumpy road', park: { x: 0, w: 210 }, dur: 4.6,
+  { key: 'roller', veh: 'roller', ja: 'でこぼこの みちを ならしたい', en: 'Make the bumpy road flat', park: { x: 0, w: 210 }, dur: 4.6,
     draw(ctx, k, show) {
       const left = lerp(0, 700, ease.inOut(seg(k, 0.08, 0.95))), w = 210, cx = left + 160;
       const hump = (x) => { let m = 0; for (const c of [340, 490, 640, 790, 930]) { const d = Math.abs(x - c); if (d < 55) m = Math.max(m, 0.5 + 0.5 * Math.cos((d / 55) * Math.PI)); } return m * 28; };

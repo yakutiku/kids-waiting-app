@@ -580,7 +580,7 @@ export default {
         askShown = Math.min(1, askShown + dt * 2);
         if (!depart) {
           ctx.save(); ctx.globalAlpha = askShown;
-          api.drawLabel(ctx, 'いま なんにん？', 'How many now?', 500, 52, 44);
+          api.drawLabel(ctx, 'いま なんにん？', 'How many people now?', 500, 52, 44);
           ctx.restore();
         }
         drawCards(ctx, dt);

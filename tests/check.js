@@ -171,7 +171,7 @@ async function t6(browser) {
 function t7_8() {
   const pal = 'D9786A E8A26A EBCB74 A9C98A 7FAE8E 8CBCD9 6E8FBF A895C2 A98466 9A9690 4A4642 FAF5EA'.split(' ').map((c) => c.toUpperCase());
   const palRgb = pal.map((h) => [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)).join(','));
-  const files = []; (function walk(d) { for (const f of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, f.name); if (f.isDirectory()) walk(p); else if (/\.(js|css|mjs)$/.test(f.name)) files.push(p); } })(path.resolve(__dirname, '../src'));
+  const files = []; (function walk(d) { for (const f of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, f.name); if (f.isDirectory()) { if (f.name !== 'vendor') walk(p); } else if (/\.(js|css|mjs)$/.test(f.name)) files.push(p); } })(path.resolve(__dirname, '../src'));
   const bad = [];
   for (const f of files) fs.readFileSync(f, 'utf8').split('\n').forEach((line, i) => {
     for (const m of line.matchAll(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3,8})\b/g)) { if (!(m[1].length === 6 && pal.includes(m[1].toUpperCase()))) { if (/^[0-9a-fA-F]{3,8}$/.test(m[1]) && /['"`(:\s]#/.test(line.slice(Math.max(0, m.index - 1), m.index + 1)) || m[1].length === 6) bad.push(`${path.relative(process.cwd(), f)}:${i + 1} ${m[0]}`); } }
